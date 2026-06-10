@@ -89,9 +89,23 @@ I am using **75 character overlap (15% of chunk size)** so that when a long revi
      Do not just say "I told it to use the documents" — show the actual instruction or explain
      the mechanism. -->
 
-**System prompt grounding instruction:**
+Grounding is enforced at three points in the pipeline ([generate.py](generate.py)), not just by the prompt:
 
-**How source attribution is surfaced in the response:**
+**1. System prompt grounding instruction.** Every request is sent with a system prompt whose first rule is a hard grounding constraint:
+
+> *GROUNDING. Base every statement solely on the REVIEWS provided in the user message. Never use outside knowledge or invent details (fees, dates, names, policies). If the reviews do not contain the answer, say so plainly: "The reviews I have don't cover that." Do not guess.*
+>
+> *ATTRIBUTION. The reviews are about specific apartments. Attribute each point to the apartment it comes from (e.g., "At Sparq, reviewers say..."). If the question names an apartment, only use reviews whose source is that apartment; ignore reviews about other buildings even if they sound similar.*
+>
+> *BOTH SIDES. Reviews for the same building often conflict. When they do, present both the positive and the negative rather than collapsing to one verdict.*
+
+The ATTRIBUTION and BOTH SIDES rules directly target the two risks named in `planning.md` (cross-building confusion and contradictory reviews). The model runs at **temperature 0.1** to keep it faithful to the source text rather than creative.
+
+**2. Structural choices (context formatting).** Retrieved chunks are not dumped in as plain text — each is rendered as a numbered, source-labelled block: `[3] Apartment: 27 North (relevance 0.57)\n<review text>`. Tagging each block with its apartment is what makes correct attribution possible and lets the model recognize and discard chunks from the wrong building.
+
+**3. Low-relevance filtering.** Before building the prompt, chunks below a cosine-similarity threshold (`MIN_SCORE = 0.15`) are dropped so the model is never tempted to answer from a barely-related review. If *nothing* clears retrieval, the system short-circuits and returns "The reviews I have don't cover that." without ever calling the LLM — so an out-of-scope question can't trigger a hallucination.
+
+**How source attribution is surfaced in the response:** `generate_answer()` returns the distinct apartments behind the answer, and the Gradio UI ([app.py](app.py)) renders a **Sources** panel beneath every answer listing (a) the apartments cited and (b) each retrieved review snippet with its source and relevance score. The user can therefore see exactly which reviews — and which buildings — the answer was built from. An optional apartment dropdown also lets the user constrain retrieval to a single building via a ChromaDB metadata filter (`where={"source": ...}`).
 
 ---
 
@@ -101,13 +115,17 @@ I am using **75 character overlap (15% of chunk size)** so that when a long revi
      Be honest — a partially accurate or inaccurate result that you explain well is more
      valuable than a suspiciously perfect result. -->
 
+Run with no source filter (top-k = 5), against the 5 questions from `planning.md`.
+
 | # | Question | Expected answer | System response (summarized) | Retrieval quality | Response accuracy |
 |---|----------|-----------------|------------------------------|-------------------|-------------------|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
+| 1 | Package delivery & fee at Miro San Jose? | ~$25–35/mo package fee; packages 1–2 days late or pile up at the desk; one concierge for both towers (deliveries stop when he's off); theft risk from non-residents in the lobby. | Reported the $25–35/mo fee, 1–2 day delays, packages sitting at the desk, and one concierge serving both towers; also surfaced a positive 24/7-concierge review. Did **not** mention the theft/lobby-access risk. | Relevant (4/5 chunks from Miro; 1 from The James, unused) | Accurate (minor omission: theft risk) |
+| 2 | Elevator reliability & outage handling at 27 North? | Broken 2+ months at a time, ~10 of 36 months over 3 years; little/no notice; safety hazard esp. for disabled residents; rent charged in full. | Correctly reported elevators broken 2+ months, both down, down ≥5 days (Jan 2025), management "blows you off," AC-leak-bucket anecdote. **Missed** the "10 of 36 months" stat and "rent charged in full." | Partially relevant (only 2/5 chunks from 27 North; 3 from Avalon/The Grad) | Partially accurate (correct but incomplete) |
+| 3 | Parking system problems at Sparq? | Klaus stacker breaks often; one resident rented a car when it was down for days; open stacker doors block access; mixed (some call it safe/efficient, others slow to fix). | Reported the stacker as a "constant headache," days-long shutdown, open doors blocking access, "parking is a mess"/dismissive management, plus a "safe indoor parking 5/5" positive. Missed the "Klaus" brand name and the rental-car detail. | Relevant (3/5 chunks from Sparq; Taft/Avalon chunks unused) | Accurate |
+| 4 | Grad's proximity to SJSU & change after management switch? | ~5-min walk to SJSU; new management praised and improved the property, but some recent reviews say it declined again after another switch; recurring elevator/hot-water/billing complaints. | Reported the 5-min walk and that new management "improved tremendously"; correctly flagged that some retrieved chunks were 27 North, not The Grad. **Missed** the later decline and recurring complaints — said there were "only positive" management comments. | Partially relevant (2/5 chunks from 27 North contamination) | Partially accurate (missed the decline nuance) |
+| 5 | Is Sparq accommodating to pets/ESAs? | Mixed: one dog owner calls it very pet-friendly; another's ESA was mishandled — retroactive pet fees despite an ESA letter, PM allegedly misstating AB 468/HUD rules, Fair Housing concerns, no follow-up. | Captured the negative ESA case well (retroactive fees, ESA letter, HUD Fair Housing) and noted others praise the PM. **Missed** the "very pet-friendly" dog-owner review and the specific AB 468 citation. | Relevant (5/5 chunks from Sparq) but low scores (0.38–0.50) | Partially accurate (got the ESA complaint, missed the positive side) |
+
+**Summary:** 2/5 Accurate, 3/5 Partially accurate, 0/5 Inaccurate. No hallucinations — every claim traced to a retrieved review, and the model correctly refused or flagged cross-building chunks. The recurring weakness is **recall, not precision**: when the answer was incomplete (Q2, Q4, Q5) it was because a relevant review didn't make the top-5, usually displaced by a semantically-similar chunk from another building.
 
 **Retrieval quality:** Relevant / Partially relevant / Off-target  
 **Response accuracy:** Accurate / Partially accurate / Inaccurate
@@ -127,13 +145,13 @@ I am using **75 character overlap (15% of chunk size)** so that when a long revi
      "The embedding model treated the professor's nickname as out-of-vocabulary and returned
      results from an unrelated review" is an explanation. -->
 
-**Question that failed:**
+**Question that failed:** Q2 — "How reliable are the elevators at 27 North, and how does management handle outages?"
 
-**What the system returned:**
+**What the system returned:** A correct but **incomplete** answer. It reported that the elevators were broken 2+ months, that both were down, that they were out ≥5 days in Jan 2025, and that management "blows you off" (plus the AC-leak-bucket anecdote). It **omitted** two key facts from the expected answer: that one resident logged the elevators as inactive ~10 of 36 months over three years, and that rent is still charged in full despite the missing amenity. Importantly, the answer was *not wrong* — it did not hallucinate or misattribute; it simply didn't have those facts available.
 
-**Root cause (tied to a specific pipeline stage):**
+**Root cause (tied to a specific pipeline stage): retrieval, cross-building contamination.** Inspecting the top-5 chunks, **only 2 of the 5 were actually from 27 North.** The other three were a near-identical elevator complaint from *Avalon at Cahill Park* (score 0.622) and two from *The Grad San Jose* (0.612, 0.568) — both of which out-scored the genuine 27 North chunks (0.570). This is exactly the "cross-building confusion" risk flagged in `planning.md`: every building in the corpus complains about broken elevators and unresponsive management in the same language, so `all-MiniLM-L6-v2` ranks those chunks as highly similar regardless of which building they describe. Because three of the five retrieval slots were consumed by other buildings, the 27 North reviews containing the "10 of 36 months" and "rent charged in full" details never made the top-5 — so the generator, correctly refusing to use the off-building chunks, had no way to include them. The failure is **recall at the retrieval stage**, not a generation error (the system prompt's attribution rule actually worked — it kept the wrong-building details *out* of the answer).
 
-**What you would change to fix it:**
+**What you would change to fix it:** The system already supports the fix — passing `source="27 North - Student Housing Apartments"` applies a ChromaDB metadata filter (`where={"source": ...}`) so all 5 slots go to genuine 27 North reviews. Re-running Q2 with that filter recovers the missing "~10 months of 3 years" detail. To make this automatic rather than manual, I would: (1) **detect the apartment name in the query** (the questions almost always name a building) and apply the source filter automatically; and/or (2) **over-fetch then re-rank** — retrieve top-15, then keep the top-5 *after* filtering to the target building, so contaminating chunks don't crowd out relevant ones. A larger, domain-tuned embedding model (e.g. `all-mpnet-base-v2`) would also widen the score gap between the right building and look-alike complaints, but the metadata filter is the cheaper, more reliable fix here.
 
 ---
 
