@@ -69,9 +69,14 @@ I am using **75 character overlap (15% of chunk size)** so that when a long revi
      Consider: context length limits, multilingual support, accuracy on domain-specific text,
      latency, and local vs. API-hosted. -->
 
-**Model used:**
+**Model used:** all-MiniLM-L6-v2
 
-**Production tradeoff reflection:**
+**Production tradeoff reflection:** `all-MiniLM-L6-v2` is a strong default because it is small, runs locally with no API cost, and is fast enough to embed the whole corpus in seconds. But it has a 256-token input cap and is trained mostly on general English, which matters for this corpus. If I were deploying this for real students and cost were not a concern, I would weigh:
+
+- **Accuracy on domain text:** Reviews use informal, opinion-heavy language ("nickel-and-dimed," "bait-and-switch," ESA/HUD references). A larger model like `all-mpnet-base-v2` or an API model such as OpenAI `text-embedding-3-large`, Voyage, or Cohere Embed would likely give better semantic matching on these nuanced complaints, improving which 5 reviews surface.
+- **Multilingual support:** Several of my reviewers are international students (e.g., a UK student at 27 North), and future users may search in other languages. A multilingual model (e.g., `paraphrase-multilingual-mpnet-base-v2` or Cohere multilingual) would handle non-English queries better.
+- **Context length:** Not a big concern here — my chunks are ≤500 characters, so MiniLM's 256-token window rarely truncates. A longer-context model would mainly help if I stopped chunking and embedded whole long reviews.
+- **Latency vs. accuracy vs. privacy:** Local MiniLM is the lowest-latency, most private option. An API model adds per-query cost, network latency, and sends review text to a third party, but typically improves retrieval quality. For a small student tool I would stay local unless evaluation shows MiniLM is missing relevant reviews.
 
 ---
 
