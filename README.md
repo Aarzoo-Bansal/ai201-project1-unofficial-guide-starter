@@ -32,7 +32,7 @@ Off-campus housing in downtown San Jose is a significant challenge for students,
 | 5 | Sparq | Text File | Google Reviews: https://maps.google.com/?cid=17704956175015793473 |
 | 6 | The Grad San Jose | Text File | Yelp: https://www.yelp.com/biz/the-grad-san-jose-3#reviews <br><br> Google Reviews: https://www.google.com/maps/place/The+Grad+San+Jose/@37.3323077,-121.8877265,17z/data=!3m1!4b1!4m6!3m5!1s0x808fcd48239fd593:0xae227f992f24823!8m2!3d37.3323077!4d-121.8851516!16s%2Fg%2F11fphqcz8y?entry=ttu&g_ep=EgoyMDI2MDYwMy4xIKXMDSoASAFQAw%3D%3D |
 | 7 | The James Apartments | Text File | Yelp: https://www.yelp.com/biz/the-james-san-jose#reviews <br><br> Gogle Reviews: https://maps.google.com/?cid=13141732054850696562 |
-| 8 | Modera San Pedro Square | Text File | Google Review:  <br><br> Apartments.com: https://www.apartments.com/modera-san-pedro-square-san-jose-ca/5m60lvp/#reviewsSection |
+| 8 | Modera San Pedro Square | Text File | Google Review: https://www.google.com/maps/place/Modera+San+Pedro+Square/@37.3352154,-121.8966746,17z/data=!4m8!3m7!1s0x808fcd94f600431b:0x35ed8a2bc87fba81!8m2!3d37.3352154!4d-121.8940997!9m1!1b1!16s%2Fg%2F11j0cxnghz?entry=ttu&g_ep=EgoyMDI2MDYwMy4xIKXMDSoASAFQAw%3D%3D <br><br> Apartments.com: https://www.apartments.com/modera-san-pedro-square-san-jose-ca/5m60lvp/#reviewsSection |
 | 9 | The Taft Apartments | Text File | Google Reviews: https://www.google.com/maps/place/The+Taft+Apartments/@37.3285317,-121.8887645,17z/data=!4m8!3m7!1s0x808fcd9f030c3f71:0x1d02e00586d6c29b!8m2!3d37.3285317!4d-121.8861896!9m1!1b1!16s%2Fg%2F11t9qkk9_0?entry=ttu&g_ep=EgoyMDI2MDYwMy4xIKXMDSoASAFQAw%3D%3D <br><br> |
 | 10 | The Ryden Apartments | Text File | Google Reviews: https://www.google.com/maps/place/The+Ryden+Apartments/@37.3277531,-121.8899607,17z/data=!4m8!3m7!1s0x808fcd5e82e9f6d3:0x6a473fb694a45e98!8m2!3d37.3277531!4d-121.8873858!9m1!1b1!16s%2Fg%2F11hdrpnxj8?entry=ttu&g_ep=EgoyMDI2MDYwMy4xIKXMDSoASAFQAw%3D%3D |
 
@@ -47,13 +47,17 @@ Off-campus housing in downtown San Jose is a significant challenge for students,
      - Any preprocessing you did before chunking (e.g., stripping HTML, removing headers)
      - What your final chunk count was across all documents -->
 
-**Chunk size:**
+**Chunk size:** 500 characters
 
-**Overlap:**
+**Overlap:** 75 characters
 
-**Why these choices fit your documents:**
+**Reasoning:** Each review is a self-contained opinion, so the review is my natural unit of meaning. In the corpus, the length of the reviews varies widely from ~135 characters (one line review) to ~1385 characters (long multi-topic reviews covering several complaints at once). A fixed-size splitter would cut these mid-sentences, so I will be using RecursiveCharacterTextSplitter.
 
-**Final chunk count:**
+My corpus is well structured and separates reviews with a blank line, so I split on blank lines first to isolate individual reviews, then apply the recursive splitter within each review. With a chunk size of **500 characters,** most reviews fall under the cap and stay as a single unit, while the few long multi-topic reviews are subdivided at natural boundaries, rather than arbitrary character counts.
+
+I am using **75 character overlap (15% of chunk size)** so that when a long review is split, a context of the sentence carries across the boundary. Short reviews stay whole and are unaffected by overlap.
+
+**Final chunk count:** 337
 
 ---
 
