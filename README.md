@@ -9,6 +9,7 @@
 
 ## Domain
 
+Off-campus housing in downtown San Jose is a significant challenge for students, particularly because Northeastern University's San Jose campus does not provide student housing. As a result, students must independently search for accommodation, a process that can be especially overwhelming for international students who are unfamiliar with the local housing market. A centralized platform that aggregates available housing options, along with verified reviews and insights from current or former tenants, would streamline the search process and help students make more informed housing decisions.
 <!-- What topic or category of knowledge does your system cover?
      Why is this knowledge valuable, and why is it hard to find through official channels?
      Example: "Student reviews of CS professors at [university] — useful because official
@@ -24,16 +25,16 @@
 
 | # | Source | Type | URL or file path |
 |---|--------|------|-----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-| 6 | | | |
-| 7 | | | |
-| 8 | | | |
-| 9 | | | |
-| 10 | | | |
+| 1 | Miro San Jose Apartments | Text File | Google Review: https://maps.google.com/?cid=12605233222488082840  <br><br> Apartments.com: https://www.apartments.com/miro-san-jose-ca/bsvyvv8/#reviewsSection|
+| 2 | One South Market | Text File | Reddit: https://www.reddit.com/r/SanJose/comments/llfzkq/to_residents_of_one_south_market_what_are_the/ <br><br> ApartmentRatings: https://www.apartmentratings.com/ca/san-jose/one-south-market_9199332346275157470/#ratingsReviews <br><br> Google Rviews: https://www.google.com/maps/place/One+South+Market+Apartments/data=!4m2!3m1!1s0x808fcca36c9f5fcf:0xb994b20eac0de073 |
+| 3 | Avalon at Cahil Park | Text File | Google Reviews: https://www.google.com/maps/place/Avalon+at+Cahill+Park/@37.330938,-121.9078553,17z/data=!4m8!3m7!1s0x808fcb58d58e0cd3:0x61bbcbce262f82ae!8m2!3d37.330938!4d-121.9052804!9m1!1b1!16s%2Fg%2F1tghdclk?entry=ttu&g_ep=EgoyMDI2MDYwMy4xIKXMDSoASAFQAw%3D%3D <br><br> Reddit: https://www.reddit.com/r/SanJose/comments/10xz1lk/avalon_on_alameda_vs_cahill_park/ <br><br> ApartmentRating: https://www.apartmentratings.com/ca/san-jose/avalon-at-cahill-park_408292777895126/?page=2#ratingsReviews|
+| 4 | 27 North - Student Housing Apartment | Text File | Reddit: https://www.reddit.com/r/SJSU/comments/1awmty8/thoughts_on_27_north/ <br><br> Google Reviews: https://www.google.com/maps/place/27+North+-+Student+Housing+Apartments/data=!4m2!3m1!1s0x0:0x901b56921e53dda3?sa=X&ved=1t:2428&ictx=111&cshid=1781042218037963|
+| 5 | Sparq | Text File | Google Reviews: https://maps.google.com/?cid=17704956175015793473 |
+| 6 | The Grad San Jose | Text File | Yelp: https://www.yelp.com/biz/the-grad-san-jose-3#reviews <br><br> Google Reviews: https://www.google.com/maps/place/The+Grad+San+Jose/@37.3323077,-121.8877265,17z/data=!3m1!4b1!4m6!3m5!1s0x808fcd48239fd593:0xae227f992f24823!8m2!3d37.3323077!4d-121.8851516!16s%2Fg%2F11fphqcz8y?entry=ttu&g_ep=EgoyMDI2MDYwMy4xIKXMDSoASAFQAw%3D%3D |
+| 7 | The James Apartments | Text File | Yelp: https://www.yelp.com/biz/the-james-san-jose#reviews <br><br> Gogle Reviews: https://maps.google.com/?cid=13141732054850696562 |
+| 8 | Modera San Pedro Square | Text File | Google Review:  <br><br> Apartments.com: https://www.apartments.com/modera-san-pedro-square-san-jose-ca/5m60lvp/#reviewsSection |
+| 9 | The Taft Apartments | Text File | Google Reviews: https://www.google.com/maps/place/The+Taft+Apartments/@37.3285317,-121.8887645,17z/data=!4m8!3m7!1s0x808fcd9f030c3f71:0x1d02e00586d6c29b!8m2!3d37.3285317!4d-121.8861896!9m1!1b1!16s%2Fg%2F11t9qkk9_0?entry=ttu&g_ep=EgoyMDI2MDYwMy4xIKXMDSoASAFQAw%3D%3D <br><br> |
+| 10 | The Ryden Apartments | Text File | Google Reviews: https://www.google.com/maps/place/The+Ryden+Apartments/@37.3277531,-121.8899607,17z/data=!4m8!3m7!1s0x808fcd5e82e9f6d3:0x6a473fb694a45e98!8m2!3d37.3277531!4d-121.8873858!9m1!1b1!16s%2Fg%2F11hdrpnxj8?entry=ttu&g_ep=EgoyMDI2MDYwMy4xIKXMDSoASAFQAw%3D%3D |
 
 ---
 
