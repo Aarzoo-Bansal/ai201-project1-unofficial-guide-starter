@@ -97,7 +97,7 @@ I am using **75 character overlap (15% of chunk size)** so that when a long revi
      Consider: noisy or inconsistent documents, missing source attribution, off-topic
      retrieval, chunks that split key information across boundaries. -->
 
-1. **Polarized, contradictory reviews bias the answer.** Almost every apartment has both glowing 5-star reviews and scathing 1-star reviews (Miro and The Grad reviewers even accuse some 5-star reviews of being fake). If top-k retrieval happens to pull mostly positive *or* mostly negative chunks for a query, the generated answer will misrepresent the overall sentiment. I plan to retrieve k=5 and prompt the model to present both positive and negative points when they exist, and I'll watch for this skew during evaluation.
+1. **Polarized, contradictory reviews bias the answer.** Almost every apartment has both 5-star reviews and 1-star reviews. If top-k retrieval happens to pull mostly positive *or* mostly negative chunks for a query, the generated answer will misrepresent the overall sentiment. I plan to retrieve k=5 and prompt the model to present both positive and negative points when they exist, and I'll watch for this skew during evaluation.
 
 2. **Cross-apartment contamination / wrong source attribution.** Reviews frequently mention *other* properties by name — 27 North reviews compare to "the Grad" and "Sparta505," and Sparq/Sparta names are similar. A query about one apartment could retrieve a chunk that is actually comparing to or talking about a different building, causing the model to attribute a complaint to the wrong place. Tagging every chunk with its source apartment in metadata (from the `# Source:` header) and surfacing that source in the answer is my mitigation.
 
